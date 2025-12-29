@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>ガチャ診断</title>
+  <style>
+    img {
+      width: 120px;
+      cursor: pointer;
+      border: 4px solid transparent;
+    }
+    img.selected {
+      border: 4px solid gold;
+    }
+  </style>
+</head>
+<body>
+
+<h2>欲しいキャラを選んでください</h2>
+
+<img src="https://via.placeholder.com/120" data-id="alice">
+<img src="https://via.placeholder.com/120" data-id="bob">
+<img src="https://via.placeholder.com/120" data-id="clara">
+
+<br><br>
+<button onclick="diagnose()">診断する</button>
+<p id="result"></p>
+
+<script>
+const characters = {
+  alice: { name: "アリス", gachas: ["ガチャA"], limited: true },
+  bob:   { name: "ボブ",   gachas: ["ガチャA"], limited: false },
+  clara: { name: "クララ", gachas: ["ガチャB"], limited: true }
+};
+
+const selected = new Set();
+
+document.querySelectorAll('img').forEach(img => {
+  img.onclick = () => {
+    const id = img.dataset.id;
+    img.classList.toggle('selected');
+    selected.has(id) ? selected.delete(id) : selected.add(id);
+  };
+});
+
+function diagnose() {
+  let hasLimited = false;
+  const count = {};
+
+  selected.forEach(id => {
+    const c = characters[id];
+    if (c.limited) hasLimited = true;
+    c.gachas.forEach(g => count[g] = (count[g] || 0) + 1);
+  });
+
+  const result = document.getElementById("result");
+
+  if (selected.size === 0) {
+    result.textContent = "キャラを選んでください";
+    return;
+  }
+
+  if (!hasLimited) {
+    result.textContent = "恒常キャラのみなので、今は引かなくてOK！";
+    return;
+  }
+
+  const best = Object.keys(count)
+    .reduce((a, b) => count[a] > count[b] ? a : b);
+
+  result.textContent = `おすすめガチャ：${best}`;
+}
+</script>
+
+</body>
+</html>
